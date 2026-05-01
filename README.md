@@ -1,22 +1,28 @@
 # 📋 Quick Prescription Form
 
-A web tool for physicians to quickly generate patient prescriptions and send them via Telegram bot.
+A responsive, mobile-friendly web application for physicians to quickly generate patient prescriptions and send them instantly via a Telegram bot. Built with Flask and `python-telegram-bot` v21.
+
+---
 
 ## ✨ Features
 
-- 📝 Clean and intuitive prescription entry form
-- 📤 Instant prescription delivery via Telegram
-- 📦 Lightweight Flask-based web application
-- 🔒 Secure environment variable configuration
-- 🎨 Modern, responsive UI design
+- **Modern UI** — Clean, responsive, and accessible form design.
+- **Instant Delivery** — Prescriptions are formatted beautifully and sent to your Telegram chat immediately.
+- **Robust Validation** — Client-side and server-side validation ensures no missing data.
+- **Async Telegram Integration** — Non-blocking Telegram API calls for fast response times.
+- **Production Ready** — Configured with Gunicorn and a `Procfile` for easy deployment to Heroku, Render, or Railway.
+
+---
 
 ## 🛠️ Prerequisites
 
-- Python 3.8 or higher
-- A Telegram Bot (created via @BotFather)
-- Telegram Chat ID (where prescriptions will be sent)
+- Python 3.11 or higher
+- A Telegram Bot token (from [@BotFather](https://t.me/BotFather))
+- Your Telegram Chat ID (where prescriptions will be sent)
 
-## 🚀 Quick Start
+---
+
+## 🚀 Quick Start (Local Development)
 
 ### 1. Clone the repository
 
@@ -25,89 +31,75 @@ git clone https://github.com/drsawminaung/quick-prescription-form.git
 cd quick-prescription-form
 ```
 
-### 2. Install dependencies
+### 2. Create a virtual environment and install dependencies
 
 ```bash
+python3 -m venv venv
+source venv/bin/activate   # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-### 3. Configure Telegram Bot
-
-1. Create a bot using [@BotFather](https://t.me/BotFather) on Telegram
-2. Copy your bot token
-3. Get your Chat ID by sending a message to your bot and visiting:
-   ```
-   https://api.telegram.org/bot<YOUR_BOT_TOKEN>/getUpdates
-   ```
-4. Create a `.env` file in the project root:
+### 3. Configure environment variables
 
 ```bash
 cp .env.example .env
 ```
 
-5. Edit `.env` and add your credentials:
+Edit `.env` and fill in your Telegram credentials:
+- `TELEGRAM_BOT_TOKEN`: Your bot token.
+- `TELEGRAM_CHAT_ID`: Your chat ID. (To find this, message your bot and visit `https://api.telegram.org/bot<YOUR_TOKEN>/getUpdates`).
 
-```
-TELEGRAM_BOT_TOKEN=your_actual_bot_token_here
-TELEGRAM_CHAT_ID=your_actual_chat_id_here
-```
-
-### 4. Run the application
+### 4. Run the Flask application
 
 ```bash
 python app.py
 ```
 
-The application will start on `http://localhost:5000`
+Visit `http://localhost:5000` in your browser.
 
-## 📝 Usage
+---
 
-1. Open your browser and navigate to `http://localhost:5000`
-2. Fill in the prescription form with:
-   - Patient name and age
-   - Diagnosis
-   - Medications (with dosage instructions)
-   - General instructions
-   - Doctor's name
-3. Click "Send Prescription"
-4. The prescription will be sent to your configured Telegram chat
+## 🌐 Deployment
 
-## 💾 Project Structure
+This application is ready to be deployed to any PaaS provider (Heroku, Render, Railway, etc.) that supports Python and `Procfile`.
 
-```
-quick-prescription-form/
-├── app.py                 # Main Flask application
-├── requirements.txt       # Python dependencies
-├── .env.example          # Example environment variables
-├── templates/
-│   └── form.html          # Prescription form HTML
-└── README.md             # This file
-```
+1. Connect your GitHub repository to your PaaS provider.
+2. Set the **Environment Variables** (`TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID`) in your provider's dashboard.
+3. The provider will automatically detect the `Procfile` and start the app using Gunicorn:
+   ```
+   web: gunicorn app:app --bind 0.0.0.0:$PORT --workers 2 --timeout 30
+   ```
 
-## 🔧 Configuration
+---
 
-All configuration is done through environment variables in the `.env` file:
-
-- `TELEGRAM_BOT_TOKEN`: Your Telegram bot token from @BotFather
-- `TELEGRAM_CHAT_ID`: The chat ID where prescriptions will be sent
-
-## 📚 API Endpoints
+## 🔌 API Endpoints
 
 ### `GET /`
-Displays the prescription entry form.
+Renders the main prescription HTML form.
 
-### `POST /send-prescription`
-Processes and sends the prescription via Telegram.
-
-**Request Body (JSON):**
+### `GET /health`
+Returns a JSON health check and verifies if Telegram credentials are set.
 ```json
 {
-  "patient_name": "string",
-  "patient_age": "number",
-  "diagnosis": "string",
-  "medications": "string",
-  "instructions": "string",
-  "doctor_name": "string"
+  "status": "ok",
+  "telegram_configured": true
+}
+```
+
+### `POST /send-prescription`
+Accepts a JSON payload and sends the prescription via Telegram.
+
+**Request Body:**
+```json
+{
+  "patient_name": "John Doe",
+  "patient_age": "45",
+  "diagnosis": "Hypertension",
+  "medications": "Amlodipine 5mg - 1 tab daily",
+  "instructions": "Monitor BP daily",
+  "follow_up": "2 weeks",
+  "doctor_name": "Saw Min Aung",
+  "clinic_name": "City Clinic"
 }
 ```
 
@@ -119,35 +111,28 @@ Processes and sends the prescription via Telegram.
 }
 ```
 
-## 🔒 Security Notes
+---
 
-- Never commit your `.env` file to version control
-- Keep your Telegram bot token secure
-- The `.gitignore` file is configured to exclude `.env` files
+## 📁 Project Structure
 
-## 🐛 Troubleshooting
-
-**Issue: Telegram bot not configured error**
-- Make sure your `.env` file exists and contains valid credentials
-- Verify your bot token is correct
-- Ensure your chat ID is valid
-
-**Issue: Import errors**
-- Reinstall dependencies: `pip install -r requirements.txt`
-- Check Python version compatibility
-
-## 📝 License
-
-This project is open source and available for use.
-
-## 👨‍⚕️ Author
-
-Created for physicians to streamline prescription delivery.
-
-## 🤝 Contributing
-
-Contributions, issues, and feature requests are welcome!
+```
+quick-prescription-form/
+├── app.py                # Main Flask application
+├── requirements.txt      # Python dependencies
+├── Procfile              # Deployment configuration
+├── .env.example          # Environment variable template
+├── .gitignore            # Git ignore rules
+├── README.md             # This file
+└── templates/
+    └── form.html         # Frontend UI
+```
 
 ---
 
-**Note:** This tool is designed for legitimate medical prescription management. Ensure compliance with local healthcare regulations.
+## 📄 License
+
+MIT License — see [LICENSE](LICENSE) for details.
+
+---
+
+*Built for clinical workflow automation by [@drsawminaung](https://github.com/drsawminaung)*

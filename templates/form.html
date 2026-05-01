@@ -5,200 +5,357 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quick Prescription Form</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --primary: #1a73e8;
+            --primary-dark: #1558b0;
+            --success: #1e8e3e;
+            --success-bg: #e6f4ea;
+            --error: #c5221f;
+            --error-bg: #fce8e6;
+            --border: #dadce0;
+            --text: #202124;
+            --muted: #5f6368;
+            --radius: 10px;
         }
-        
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, #1a73e8 0%, #0d47a1 100%);
             min-height: 100vh;
             display: flex;
             justify-content: center;
-            align-items: center;
-            padding: 20px;
+            align-items: flex-start;
+            padding: 32px 16px;
         }
-        
-        .container {
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            max-width: 600px;
+
+        .card {
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 8px 40px rgba(0,0,0,0.25);
             width: 100%;
-            padding: 40px;
+            max-width: 640px;
+            padding: 40px 36px;
         }
-        
-        h1 {
-            color: #333;
-            margin-bottom: 10px;
-            font-size: 28px;
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 28px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--border);
         }
-        
-        .subtitle {
-            color: #666;
-            margin-bottom: 30px;
-            font-size: 14px;
+
+        .card-header .icon {
+            font-size: 36px;
+            line-height: 1;
         }
-        
+
+        .card-header h1 {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .card-header p {
+            font-size: 13px;
+            color: var(--muted);
+            margin-top: 2px;
+        }
+
+        .section-title {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--primary);
+            margin: 24px 0 12px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 16px;
         }
-        
+
+        .form-group.full { grid-column: 1 / -1; }
+
         label {
             display: block;
-            margin-bottom: 8px;
-            color: #333;
+            font-size: 13px;
             font-weight: 600;
+            color: var(--text);
+            margin-bottom: 6px;
         }
-        
-        input, textarea {
+
+        label .req { color: var(--error); margin-left: 2px; }
+
+        input, textarea, select {
             width: 100%;
-            padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
+            padding: 10px 14px;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
             font-size: 14px;
-            transition: border-color 0.3s;
+            color: var(--text);
+            background: #fafafa;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            font-family: inherit;
         }
-        
-        input:focus, textarea:focus {
+
+        input:focus, textarea:focus, select:focus {
             outline: none;
-            border-color: #667eea;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(26,115,232,0.15);
+            background: #fff;
         }
-        
-        textarea {
-            resize: vertical;
-            min-height: 100px;
+
+        input.invalid, textarea.invalid {
+            border-color: var(--error);
+            box-shadow: 0 0 0 3px rgba(197,34,31,0.1);
         }
-        
+
+        textarea { resize: vertical; min-height: 90px; }
+
         .btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 14px 30px;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
             width: 100%;
-            transition: transform 0.2s;
+            padding: 14px;
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            border-radius: var(--radius);
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.15s;
+            margin-top: 8px;
         }
-        
-        .btn:hover {
-            transform: translateY(-2px);
-        }
-        
-        .btn:active {
-            transform: translateY(0);
-        }
-        
-        .message {
-            margin-top: 20px;
-            padding: 15px;
-            border-radius: 8px;
-            text-align: center;
+
+        .btn:hover:not(:disabled) { background: var(--primary-dark); transform: translateY(-1px); }
+        .btn:active:not(:disabled) { transform: translateY(0); }
+        .btn:disabled { opacity: 0.65; cursor: not-allowed; }
+
+        .spinner {
+            width: 18px; height: 18px;
+            border: 3px solid rgba(255,255,255,0.4);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
             display: none;
         }
-        
-        .message.success {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .alert {
+            display: none;
+            margin-top: 20px;
+            padding: 14px 16px;
+            border-radius: var(--radius);
+            font-size: 14px;
+            font-weight: 500;
+            line-height: 1.5;
         }
-        
-        .message.error {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
+
+        .alert.success {
+            background: var(--success-bg);
+            color: var(--success);
+            border: 1px solid #a8d5b5;
+        }
+
+        .alert.error {
+            background: var(--error-bg);
+            color: var(--error);
+            border: 1px solid #f5b8b6;
+        }
+
+        .divider {
+            border: none;
+            border-top: 1px solid var(--border);
+            margin: 8px 0 4px;
+        }
+
+        @media (max-width: 480px) {
+            .card { padding: 28px 20px; }
+            .form-row { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>📋 Quick Prescription Form</h1>
-        <p class="subtitle">Fill out the form below to generate and send a prescription via Telegram</p>
-        
-        <form id="prescriptionForm">
-            <div class="form-group">
-                <label for="patient_name">👤 Patient Name *</label>
-                <input type="text" id="patient_name" name="patient_name" required>
-            </div>
-            
-            <div class="form-group">
-                <label for="patient_age">🎂 Patient Age *</label>
-                <input type="number" id="patient_age" name="patient_age" required>
-            </div>
-            
-            <div class="form-group">
-                <label for="diagnosis">🏥 Diagnosis *</label>
-                <input type="text" id="diagnosis" name="diagnosis" required>
-            </div>
-            
-            <div class="form-group">
-                <label for="medications">💊 Medications *</label>
-                <textarea id="medications" name="medications" placeholder="e.g., Amoxicillin 500mg - Take 1 tablet 3 times daily for 7 days" required></textarea>
-            </div>
-            
-            <div class="form-group">
-                <label for="instructions">📝 Instructions *</label>
-                <textarea id="instructions" name="instructions" placeholder="e.g., Take medication with food. Drink plenty of water. Follow up in 1 week." required></textarea>
-            </div>
-            
-            <div class="form-group">
-                <label for="doctor_name">👨‍⚕️ Doctor Name *</label>
-                <input type="text" id="doctor_name" name="doctor_name" required>
-            </div>
-            
-            <button type="submit" class="btn">📤 Send Prescription</button>
-        </form>
-        
-        <div id="message" class="message"></div>
+<div class="card">
+    <div class="card-header">
+        <span class="icon">📋</span>
+        <div>
+            <h1>Quick Prescription Form</h1>
+            <p>Fill in the details below and send via Telegram instantly.</p>
+        </div>
     </div>
-    
-    <script>
-        document.getElementById('prescriptionForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const formData = {
-                patient_name: document.getElementById('patient_name').value,
-                patient_age: document.getElementById('patient_age').value,
-                diagnosis: document.getElementById('diagnosis').value,
-                medications: document.getElementById('medications').value,
-                instructions: document.getElementById('instructions').value,
-                doctor_name: document.getElementById('doctor_name').value
-            };
-            
-            const messageDiv = document.getElementById('message');
-            messageDiv.style.display = 'none';
-            
-            try {
-                const response = await fetch('/send-prescription', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(formData)
-                });
-                
-                const result = await response.json();
-                
-                if (result.success) {
-                    messageDiv.className = 'message success';
-                    messageDiv.textContent = '✅ ' + result.message;
-                    document.getElementById('prescriptionForm').reset();
-                } else {
-                    messageDiv.className = 'message error';
-                    messageDiv.textContent = '❌ ' + result.message;
-                }
-                
-                messageDiv.style.display = 'block';
-            } catch (error) {
-                messageDiv.className = 'message error';
-                messageDiv.textContent = '❌ Error: Could not send prescription';
-                messageDiv.style.display = 'block';
+
+    <form id="rxForm" novalidate>
+
+        <!-- Patient Information -->
+        <div class="section-title">Patient Information</div>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="patient_name">Patient Name <span class="req">*</span></label>
+                <input type="text" id="patient_name" name="patient_name"
+                       placeholder="e.g., John Doe" autocomplete="off" required>
+            </div>
+            <div class="form-group">
+                <label for="patient_age">Age (years) <span class="req">*</span></label>
+                <input type="number" id="patient_age" name="patient_age"
+                       placeholder="e.g., 45" min="0" max="150" required>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="diagnosis">Diagnosis <span class="req">*</span></label>
+            <input type="text" id="diagnosis" name="diagnosis"
+                   placeholder="e.g., Type 2 Diabetes Mellitus, Hypertension" required>
+        </div>
+
+        <hr class="divider">
+
+        <!-- Prescription Details -->
+        <div class="section-title">Prescription</div>
+        <div class="form-group">
+            <label for="medications">Medications <span class="req">*</span></label>
+            <textarea id="medications" name="medications" rows="4"
+                      placeholder="e.g., Metformin 500 mg — 1 tab twice daily with meals&#10;Amlodipine 5 mg — 1 tab once daily" required></textarea>
+        </div>
+        <div class="form-group">
+            <label for="instructions">Instructions / Advice</label>
+            <textarea id="instructions" name="instructions" rows="3"
+                      placeholder="e.g., Avoid high-sugar foods. Monitor BP daily. Return if symptoms worsen."></textarea>
+        </div>
+        <div class="form-group">
+            <label for="follow_up">Follow-up</label>
+            <input type="text" id="follow_up" name="follow_up"
+                   placeholder="e.g., 2 weeks, or specific date">
+        </div>
+
+        <hr class="divider">
+
+        <!-- Physician Details -->
+        <div class="section-title">Physician</div>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="doctor_name">Doctor Name <span class="req">*</span></label>
+                <input type="text" id="doctor_name" name="doctor_name"
+                       placeholder="e.g., Saw Min Aung" required>
+            </div>
+            <div class="form-group">
+                <label for="clinic_name">Clinic / Hospital</label>
+                <input type="text" id="clinic_name" name="clinic_name"
+                       placeholder="e.g., City Internal Medicine Clinic">
+            </div>
+        </div>
+
+        <button type="submit" class="btn" id="submitBtn">
+            <span class="spinner" id="spinner"></span>
+            <span id="btnText">📤 Send Prescription</span>
+        </button>
+    </form>
+
+    <div id="alert" class="alert" role="alert"></div>
+</div>
+
+<script>
+    const form = document.getElementById('rxForm');
+    const btn  = document.getElementById('submitBtn');
+    const spinner = document.getElementById('spinner');
+    const btnText = document.getElementById('btnText');
+    const alertBox = document.getElementById('alert');
+
+    const REQUIRED = ['patient_name', 'patient_age', 'diagnosis', 'medications', 'doctor_name'];
+
+    function showAlert(type, message) {
+        alertBox.className = 'alert ' + type;
+        alertBox.textContent = (type === 'success' ? '✅ ' : '❌ ') + message;
+        alertBox.style.display = 'block';
+        alertBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function setLoading(loading) {
+        btn.disabled = loading;
+        spinner.style.display = loading ? 'block' : 'none';
+        btnText.textContent = loading ? 'Sending…' : '📤 Send Prescription';
+    }
+
+    function clearValidation() {
+        REQUIRED.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.classList.remove('invalid');
+        });
+    }
+
+    function validateClient(data) {
+        let valid = true;
+        REQUIRED.forEach(id => {
+            const el = document.getElementById(id);
+            if (!el) return;
+            if (!String(data[id] || '').trim()) {
+                el.classList.add('invalid');
+                valid = false;
+            } else {
+                el.classList.remove('invalid');
             }
         });
-    </script>
+        return valid;
+    }
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        clearValidation();
+        alertBox.style.display = 'none';
+
+        const data = {};
+        ['patient_name','patient_age','diagnosis','medications',
+         'instructions','follow_up','doctor_name','clinic_name'].forEach(id => {
+            const el = document.getElementById(id);
+            data[id] = el ? el.value : '';
+        });
+
+        if (!validateClient(data)) {
+            showAlert('error', 'Please fill in all required fields (marked with *).');
+            return;
+        }
+
+        setLoading(true);
+
+        try {
+            const res = await fetch('/send-prescription', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            const result = await res.json();
+
+            if (result.success) {
+                showAlert('success', result.message);
+                form.reset();
+            } else {
+                showAlert('error', result.message || 'Failed to send prescription.');
+            }
+        } catch {
+            showAlert('error', 'Network error — could not reach the server. Please try again.');
+        } finally {
+            setLoading(false);
+        }
+    });
+
+    // Live validation: remove invalid state on input
+    REQUIRED.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener('input', () => el.classList.remove('invalid'));
+    });
+</script>
 </body>
 </html>
